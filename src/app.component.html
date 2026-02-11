@@ -1,0 +1,222 @@
+<div class="min-h-screen pb-20">
+  
+  <!-- Header -->
+  <header class="h-[65px] bg-gradient-to-br from-primary to-secondary text-white px-4 flex items-center gap-4 sticky top-0 z-50 shadow-md">
+    <div class="text-lg font-bold flex items-center gap-2 whitespace-nowrap">
+      <i class="fas fa-play-circle text-[#f6ad55] text-2xl"></i>
+      <span class="hidden min-[380px]:inline">Maten TV</span>
+    </div>
+
+    <div class="flex-1 relative max-w-[400px]">
+      <input type="text" 
+             placeholder="گەڕان بۆ کەناڵ..." 
+             (keyup)="handleSearch($event)"
+             class="w-full py-2.5 pl-4 pr-10 rounded-full bg-white/15 text-white text-sm outline-none backdrop-blur-sm focus:bg-white/25 focus:ring-2 focus:ring-white/20 transition-all placeholder-white/70">
+      <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-white/80 text-sm pointer-events-none"></i>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button class="w-[38px] h-[38px] rounded-full flex items-center justify-center text-lg transition-all active:scale-95"
+              [class.bg-white]="showOnlyFavorites()"
+              [class.text-accent]="showOnlyFavorites()"
+              [class.text-white]="!showOnlyFavorites()"
+              [class.shadow-md]="showOnlyFavorites()"
+              (click)="toggleFavFilter()"
+              title="دڵخوازەکان">
+        <i class="fas fa-heart"></i>
+      </button>
+
+      @if (isAdmin()) {
+        <button class="w-[38px] h-[38px] rounded-full flex items-center justify-center text-lg text-white hover:bg-white/10 transition-all active:scale-95"
+                (click)="openAddCategory()" title="زیادکردنی بەش">
+          <i class="fas fa-folder-plus"></i>
+        </button>
+        <button class="w-[38px] h-[38px] rounded-full flex items-center justify-center text-lg text-[#fc8181] hover:bg-white/10 transition-all active:scale-95"
+                (click)="logout()" title="دەرچوون">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      } @else {
+        <button class="w-[38px] h-[38px] rounded-full flex items-center justify-center text-lg text-white hover:bg-white/10 transition-all active:scale-95"
+                (click)="openLogin()" title="چوونەژوور">
+          <i class="fas fa-user-cog"></i>
+        </button>
+      }
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="p-2.5 md:p-5 max-w-7xl mx-auto">
+    
+    @if (sections().length === 0 && (searchQuery() || showOnlyFavorites())) {
+      <div class="text-center py-12 text-gray-400">
+        <p>هیچ کەناڵێک نەدۆزرایەوە</p>
+      </div>
+    }
+
+    <!-- Skeleton Loader (only if no data yet) -->
+    @if (fb.channels().length === 0 && fb.categories().length === 0 && !isAdmin()) {
+      <div class="animate-pulse space-y-6">
+        <div class="bg-white p-4 rounded-2xl shadow-sm">
+           <div class="h-5 bg-gray-200 rounded w-32 mb-4"></div>
+           <div class="grid grid-cols-[repeat(auto-fill,minmax(105px,1fr))] gap-3">
+             <div class="h-32 bg-gray-200 rounded-xl"></div>
+             <div class="h-32 bg-gray-200 rounded-xl"></div>
+             <div class="h-32 bg-gray-200 rounded-xl"></div>
+           </div>
+        </div>
+      </div>
+    }
+
+    @for (section of sections(); track section.id) {
+      <div class="bg-white m-2.5 sm:m-4 p-4 rounded-2xl shadow-sm">
+        <div class="flex justify-between items-center mb-4 pb-2 border-b border-dashed border-gray-200">
+          <div class="text-lg font-bold text-primary">{{ section.title }}</div>
+          <div class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full text-xs font-bold">
+            {{ section.channels.length }}
+          </div>
+        </div>
+
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(105px,1fr))] gap-3">
+          @for (ch of section.channels; track ch.id) {
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden aspect-square relative cursor-pointer active:scale-95 transition-transform group"
+                 (click)="playChannel(ch)">
+              
+              <!-- Fav Button -->
+              <div class="absolute top-1.5 left-1.5 w-7 h-7 bg-white/90 rounded-full flex items-center justify-center shadow-sm z-10 transition-all active:scale-110"
+                   [class.text-accent]="ch.isFavorite"
+                   [class.text-gray-300]="!ch.isFavorite"
+                   (click)="toggleFavorite(ch, $event)">
+                <i class="fas fa-heart"></i>
+              </div>
+
+              <img [src]="ch.image" class="w-full h-full object-contain p-2 bg-white" loading="lazy" onerror="this.src='https://placehold.co/200?text=Error'">
+
+              <!-- Admin Controls -->
+              @if (isAdmin()) {
+                <div class="absolute bottom-0 left-0 w-full p-1.5 bg-black/60 backdrop-blur-[2px] flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                   <button (click)="openEditChannel(ch, $event)" class="w-[30px] h-[30px] rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+                     <i class="fas fa-pen"></i>
+                   </button>
+                   <button (click)="onDeleteChannel(ch.id, $event)" class="w-[30px] h-[30px] rounded-full bg-red-600 text-white flex items-center justify-center text-xs">
+                     <i class="fas fa-trash"></i>
+                   </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </main>
+
+  <!-- FAB -->
+  @if (isAdmin()) {
+    <div class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-primary to-secondary text-white rounded-full flex items-center justify-center z-[150] text-2xl shadow-lg cursor-pointer active:scale-95 transition-transform"
+         (click)="openAddChannel()">
+      <i class="fas fa-plus"></i>
+    </div>
+  }
+
+  <!-- Toast Container -->
+  <div class="fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col gap-2.5 z-[3000] w-[90%] max-w-[350px] pointer-events-none">
+    @for (t of toasts(); track t.id) {
+      <div class="bg-white text-gray-800 px-4 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-bold border-r-4 animate-[slideUp_0.4s]"
+           [class.border-green-500]="t.type === 'success'"
+           [class.border-red-500]="t.type === 'error'"
+           [class.border-blue-500]="t.type === 'info'">
+        <i class="fas" 
+           [class.fa-check-circle]="t.type === 'success'" [class.text-green-500]="t.type === 'success'"
+           [class.fa-times-circle]="t.type === 'error'" [class.text-red-500]="t.type === 'error'"
+           [class.fa-info-circle]="t.type === 'info'" [class.text-blue-500]="t.type === 'info'"></i>
+        <span>{{ t.message }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Player -->
+  <app-video-player [channel]="activeChannel()" 
+                    [relatedChannels]="filteredChannels()"
+                    (onClose)="closePlayer()"
+                    (onChannelChange)="playChannel($event)">
+  </app-video-player>
+
+  <!-- Login Modal -->
+  @if (showLoginModal()) {
+    <div class="fixed inset-0 bg-black/60 z-[2000] backdrop-blur-sm flex items-center justify-center p-4 animate-[fadeIn_0.2s]">
+      <div class="bg-white p-6 rounded-3xl w-full max-w-sm shadow-2xl">
+        <h3 class="text-center mb-5 text-primary text-xl font-bold">چوونەژووری ئەدمین</h3>
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          <div class="mb-4">
+            <input formControlName="email" type="email" placeholder="ئیمەیڵ (admin@example.com)" class="w-full p-3.5 border-2 border-slate-100 rounded-xl bg-slate-50 outline-none focus:border-blue-300" dir="ltr">
+          </div>
+          <div class="mb-4">
+            <input formControlName="password" type="password" placeholder="وشەی نهێنی" class="w-full p-3.5 border-2 border-slate-100 rounded-xl bg-slate-50 outline-none focus:border-blue-300" dir="ltr">
+          </div>
+          <button type="submit" class="w-full p-3.5 bg-primary text-white rounded-xl font-bold mb-2.5 active:scale-95 transition-transform">چوونەژوورەوە</button>
+          <button type="button" (click)="closeLogin()" class="w-full p-3.5 bg-slate-100 text-gray-600 rounded-xl font-bold active:scale-95 transition-transform">داخستن</button>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Channel Modal -->
+  @if (showChannelModal()) {
+    <div class="fixed inset-0 bg-black/60 z-[2000] backdrop-blur-sm flex items-center justify-center p-4 animate-[fadeIn_0.2s]">
+      <div class="bg-white p-6 rounded-3xl w-full max-w-sm shadow-2xl">
+        <h3 class="text-center mb-5 text-primary text-xl font-bold">{{ editingChannelId() ? 'دەستکاری' : 'زیادکردنی' }} کەناڵ</h3>
+        <form [formGroup]="channelForm" (ngSubmit)="onSaveChannel()">
+          <div class="mb-4">
+            <label class="block text-sm mb-1 text-gray-600">ناوی کەناڵ</label>
+            <input formControlName="name" type="text" placeholder="ناوی کەناڵەکە" class="w-full p-3.5 border-2 border-slate-100 rounded-xl bg-slate-50 outline-none focus:border-green-300">
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm mb-1 text-gray-600">لینک (M3U8)</label>
+            <input formControlName="url" type="text" placeholder="https://..." class="w-full p-3.5 border-2 border-slate-100 rounded-xl bg-slate-50 outline-none focus:border-green-300" dir="ltr">
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm mb-1 text-gray-600">جۆر (Category)</label>
+            <select formControlName="category" class="w-full p-3.5 border-2 border-slate-100 rounded-xl bg-slate-50 outline-none focus:border-green-300">
+              <option value="" disabled>...هەڵبژێرە</option>
+              @for (cat of categories(); track cat.id) {
+                <option [value]="cat.id">{{ cat.title }}</option>
+              }
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm mb-1 text-gray-600">وێنەی کەناڵ</label>
+            <input formControlName="image" type="text" placeholder="لینک وێنەکە" class="w-full p-3.5 border-2 border-slate-100 rounded-xl bg-slate-50 outline-none focus:border-green-300" dir="ltr">
+          </div>
+          <button type="submit" class="w-full p-3.5 bg-green-500 text-white rounded-xl font-bold mb-2.5 active:scale-95 transition-transform">تۆمارکردن</button>
+          <button type="button" (click)="closeChannelModal()" class="w-full p-3.5 bg-slate-100 text-gray-600 rounded-xl font-bold active:scale-95 transition-transform">پاشگەزبوونەوە</button>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Category Modal -->
+  @if (showCategoryModal()) {
+    <div class="fixed inset-0 bg-black/60 z-[2000] backdrop-blur-sm flex items-center justify-center p-4 animate-[fadeIn_0.2s]">
+      <div class="bg-white p-6 rounded-3xl w-full max-w-sm shadow-2xl">
+        <h3 class="text-center mb-5 text-primary text-xl font-bold">زیادکردنی بەشی نوێ</h3>
+        <form [formGroup]="categoryForm" (ngSubmit)="onAddCategory()">
+          <div class="mb-4">
+            <label class="block text-sm mb-1 text-gray-600">ناونیشانی بەش</label>
+            <input formControlName="title" type="text" placeholder="نموونە: وەرزش" class="w-full p-3.5 border-2 border-slate-100 rounded-xl bg-slate-50 outline-none focus:border-blue-300">
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm mb-1 text-gray-600">کۆدی بەش (ID)</label>
+            <input formControlName="id" type="text" placeholder="sport, news" class="w-full p-3.5 border-2 border-slate-100 rounded-xl bg-slate-50 outline-none focus:border-blue-300" dir="ltr">
+            <small class="text-gray-400 text-[11px]">تەنها پیت و ژمارەی ئینگلیزی</small>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm mb-1 text-gray-600">ڕیزبەندی</label>
+            <input formControlName="order" type="number" class="w-full p-3.5 border-2 border-slate-100 rounded-xl bg-slate-50 outline-none focus:border-blue-300">
+          </div>
+          <button type="submit" class="w-full p-3.5 bg-blue-600 text-white rounded-xl font-bold mb-2.5 active:scale-95 transition-transform">زیادکردنی بەش</button>
+          <button type="button" (click)="closeCategory()" class="w-full p-3.5 bg-slate-100 text-gray-600 rounded-xl font-bold active:scale-95 transition-transform">داخستن</button>
+        </form>
+      </div>
+    </div>
+  }
+
+</div>
