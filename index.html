@@ -4,65 +4,164 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Maten TV Pro</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: '#1a365d',
-              secondary: '#2a4365',
-              accent: '#e53e3e',
-              bg: '#f7fafc',
-            },
-            fontFamily: {
-              nrt: ['NRT', 'sans-serif'],
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      @font-face {
-        font-family: 'NRT';
-        src: url('https://www.nrttv.com/css/fonts/NRT-Reg.woff2') format('woff2');
-        font-weight: normal;
-      }
-      body {
-        font-family: 'NRT', sans-serif;
-        background-color: #f7fafc;
-        -webkit-tap-highlight-color: transparent;
-      }
-      /* Hide Scrollbar but allow scroll */
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-    </style>
-<script type="importmap">
-{
-  "imports": {
-    "rxjs": "https://esm.sh/rxjs@^7.8.2?conditions=es2015",
-    "rxjs/operators": "https://esm.sh/rxjs@^7.8.2/operators?conditions=es2015",
-    "rxjs/ajax": "https://esm.sh/rxjs@^7.8.2/ajax?conditions=es2015",
-    "rxjs/webSocket": "https://esm.sh/rxjs@^7.8.2/webSocket?conditions=es2015",
-    "rxjs/testing": "https://esm.sh/rxjs@^7.8.2/testing?conditions=es2015",
-    "rxjs/fetch": "https://esm.sh/rxjs@^7.8.2/fetch?conditions=es2015",
-    "@angular/forms": "https://esm.sh/@angular/forms@^21.1.4?external=rxjs",
-    "@angular/common": "https://esm.sh/@angular/common@^21.1.4?external=rxjs",
-    "@angular/core": "https://esm.sh/@angular/core@^21.1.4?external=rxjs",
-    "@angular/compiler": "https://esm.sh/@angular/compiler@^21.1.4?external=rxjs",
-    "@angular/platform-browser": "https://esm.sh/@angular/platform-browser@^21.1.4?external=rxjs"
-  }
-}
-</script>
+    
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <app-root></app-root>
+
+    <div class="app-header">
+        <div class="logo">
+            <i class="fas fa-play-circle" style="color:#f6ad55;"></i> 
+            <span>Maten TV</span>
+        </div>
+        
+        <div class="header-search">
+            <input type="text" id="searchInput" placeholder="گەڕان بۆ کەناڵ..." onkeyup="handleSearch()">
+            <i class="fas fa-search"></i>
+        </div>
+
+        <div class="header-actions">
+            <button id="favFilterBtn" class="icon-btn" onclick="toggleFavFilterView()" title="تەنها دڵخوازەکان">
+                <i class="fas fa-heart"></i>
+            </button>
+            
+            <button id="addCategoryBtn" class="icon-btn" style="display:none;" title="زیادکردنی بەش">
+                <i class="fas fa-folder-plus"></i>
+            </button>
+            
+            <button id="adminLoginBtn" class="icon-btn" title="چوونەژوور"><i class="fas fa-user-cog"></i></button>
+            
+            <button id="logoutBtn" class="icon-btn" style="display:none; color:#fc8181;" title="دەرچوون"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </div>
+
+    <div id="mainContainer">
+        <div id="skeleton-loader">
+            <div class="category-section">
+                <div class="skeleton skeleton-text" style="width: 120px; margin-bottom: 15px;"></div>
+                <div class="products-container">
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                </div>
+            </div>
+            <div class="category-section" style="margin-top: 20px;">
+                <div class="skeleton skeleton-text" style="width: 150px; margin-bottom: 15px;"></div>
+                <div class="products-container">
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="add-fab" id="addChannelBtn">
+        <i class="fas fa-plus"></i>
+    </div>
+
+    <div id="toast-box"></div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h3 style="text-align:center; margin-bottom:20px; color:var(--primary-color);">چوونەژووری ئەدمین</h3>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="email" id="username" placeholder="ئیمەیڵ (admin@example.com)" required autocomplete="email" dir="ltr">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="وشەی نهێنی" required dir="ltr">
+                </div>
+                <button type="submit">چوونەژوورەوە</button>
+                <button type="button" class="close-modal-btn close-modal">داخستن</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <h3 style="text-align:center; margin-bottom:20px; color:var(--primary-color);">زیادکردنی بەشی نوێ</h3>
+            <form id="categoryForm">
+                <div class="form-group">
+                    <label>ناونیشانی بەش (کوردی)</label>
+                    <input type="text" id="catTitle" placeholder="نموونە: وەرزش، منداڵان..." required>
+                </div>
+                <div class="form-group">
+                    <label>کۆدی بەش (ID - ئینگلیزی)</label>
+                    <input type="text" id="catId" placeholder="sport, news" required dir="ltr">
+                    <small style="color:gray; font-size:11px;">تێبینی: بە ئینگلیزی بنووسە و بۆشایی (Space) بەکارمەهێنە.</small>
+                </div>
+                <div class="form-group">
+                    <label>ڕیزبەندی (Order)</label>
+                    <input type="number" id="catOrder" placeholder="نموونە: 1" required>
+                </div>
+                <button type="submit" style="background-color: #3182ce;">زیادکردنی بەش</button>
+                <button type="button" class="close-modal-btn close-modal">داخستن</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="channelFormModal" class="modal">
+        <div class="modal-content">
+            <h3 id="formTitle" style="text-align:center; margin-bottom:20px; color:var(--primary-color);">زیادکردنی کەناڵ</h3>
+            <form id="channelForm">
+                <div class="form-group">
+                    <label>ناوی کەناڵ</label>
+                    <input type="text" id="channelName" required placeholder="ناوی کەناڵەکە">
+                </div>
+                
+                <div class="form-group">
+                    <label>لینک (M3U8)</label>
+                    <input type="text" id="channelUrl" required dir="ltr" placeholder="https://...">
+                </div>
+                
+                <div class="form-group">
+                    <label>جۆر (Category)</label>
+                    <select id="channelCategory" required>
+                        <option value="" disabled selected>...چاوەڕێبە</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>وێنەی کەناڵ (URL Link)</label>
+                    <input type="text" id="channelImageLink" required dir="ltr" placeholder="لینک وێنەکە لێرە دابنێ">
+                </div>
+
+                <button type="submit" style="background-color: #48bb78;">تۆمارکردن</button>
+                <button type="button" class="close-modal-btn close-modal">پاشگەزبوونەوە</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="playerModal" class="modal" style="z-index: 2500;">
+        <div id="videoContainer" class="video-modal-content">
+            
+            <div class="player-btn close-video" onclick="closePlayer()">
+                <i class="fas fa-times"></i>
+            </div>
+            
+            <div class="player-btn maximize-btn" onclick="toggleFullScreen()">
+                <i class="fas fa-expand"></i>
+            </div>
+
+            <div class="player-btn pip-toggle-btn" onclick="togglePipMode()" style="left: 80px;">
+                <i class="fas fa-compress-arrows-alt"></i>
+            </div>
+
+            <div class="click-layer" onclick="triggerOverlay()"></div>
+            
+            <video id="videoPlayer" autoplay playsinline></video>
+            
+            <div id="relatedChannels" class="related-channels-bar"></div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+
 </body>
 </html>

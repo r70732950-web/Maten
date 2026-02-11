@@ -1,0 +1,228 @@
+/* =========================================
+   1. FONTS & VARIABLES
+   ========================================= */
+@font-face {
+    font-family: 'NRT';
+    src: url('https://www.nrttv.com/css/fonts/NRT-Reg.woff2') format('woff2');
+    font-weight: normal;
+}
+
+:root {
+    --primary-color: #1a365d;
+    --secondary-color: #2a4365;
+    --accent-color: #e53e3e;
+    --bg-color: #f7fafc;
+    --text-color: #2d3748;
+    --card-bg: #ffffff;
+    --card-radius: 16px;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* =========================================
+   2. GLOBAL RESET
+   ========================================= */
+* { 
+    margin: 0; padding: 0; box-sizing: border-box; 
+    font-family: 'NRT', sans-serif; 
+    -webkit-tap-highlight-color: transparent; 
+}
+
+body { 
+    background-color: var(--bg-color); 
+    color: var(--text-color); 
+    direction: rtl; 
+    padding-bottom: 80px; 
+    overflow-x: hidden;
+}
+
+video::-webkit-media-controls { display: none !important; }
+video::-webkit-media-controls-enclosure { display: none !important; }
+
+/* =========================================
+   3. HEADER STYLES
+   ========================================= */
+.app-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white; 
+    padding: 10px 15px; 
+    display: flex; align-items: center; gap: 15px;
+    position: sticky; top: 0; z-index: 1000; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    height: 65px;
+}
+
+.logo { 
+    font-size: 18px; font-weight: bold; white-space: nowrap;
+    display: flex; align-items: center; gap: 8px;
+}
+.logo i { color: #f6ad55; font-size: 22px; }
+.logo span { display: none; } 
+@media (min-width: 380px) { .logo span { display: inline; } }
+
+.header-search { flex: 1; position: relative; max-width: 400px; }
+.header-search input {
+    width: 100%; padding: 10px 40px 10px 15px; border-radius: 25px;
+    border: none; background: rgba(255,255,255,0.15); 
+    color: white; font-size: 14px; outline: none;
+    transition: all 0.3s ease; backdrop-filter: blur(5px);
+}
+.header-search input::placeholder { color: rgba(255,255,255,0.7); }
+.header-search input:focus { background: rgba(255,255,255,0.25); box-shadow: 0 0 0 2px rgba(255,255,255,0.2); }
+.header-search i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.8); font-size: 14px; pointer-events: none; }
+
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+    background: transparent; border: none; color: white; 
+    width: 38px; height: 38px; border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; cursor: pointer; transition: background 0.2s;
+}
+.icon-btn:active { background: rgba(255,255,255,0.2); transform: scale(0.95); }
+.icon-btn.active-filter { color: var(--accent-color); background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+/* =========================================
+   4. TOAST & SKELETON
+   ========================================= */
+#toast-box {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; gap: 10px; z-index: 3000;
+    width: 90%; max-width: 350px; pointer-events: none;
+}
+.toast {
+    background: white; color: #333; padding: 14px 18px;
+    border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px; font-weight: bold; border-right: 5px solid; 
+    animation: slideUp 0.4s, fadeOut 0.5s ease 2.5s forwards; pointer-events: auto;
+}
+.toast.success { border-color: #48bb78; } .toast.success i { color: #48bb78; }
+.toast.error { border-color: #f56565; } .toast.error i { color: #f56565; }
+.toast.info { border-color: #4299e1; } .toast.info i { color: #4299e1; }
+@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.skeleton {
+    background: linear-gradient(90deg, #e2e8f0 25%, #edf2f7 50%, #e2e8f0 75%);
+    background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;
+}
+.skeleton-card { height: 140px; width: 100%; border-radius: 14px; }
+.skeleton-text { height: 20px; width: 60%; margin: 10px auto; }
+
+/* =========================================
+   5. CARDS & MODALS
+   ========================================= */
+.category-section {
+    background: var(--card-bg); margin: 15px 10px; padding: 15px; 
+    border-radius: var(--card-radius); box-shadow: var(--shadow-sm);
+}
+.section-header { 
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;
+}
+.section-title { font-size: 18px; font-weight: 700; color: var(--primary-color); }
+.count-badge { background: #ebf8ff; color: #2b6cb0; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+.products-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 12px; }
+.product-card {
+    position: relative; background: #fff; border-radius: 14px; 
+    overflow: hidden; aspect-ratio: 1/1; box-shadow: var(--shadow-sm); border: 1px solid #edf2f7;
+    cursor: pointer; transition: transform 0.2s;
+}
+.product-card:active { transform: scale(0.96); }
+.product-image { width: 100%; height: 100%; object-fit: contain; padding: 8px; background: white; }
+.fav-btn {
+    position: absolute; top: 6px; left: 6px; width: 28px; height: 28px;
+    background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; color: #cbd5e0; transition: all 0.2s;
+}
+.fav-btn.active { color: var(--accent-color); transform: scale(1.1); }
+.admin-controls {
+    position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px; 
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(2px);
+    display: flex; justify-content: center; gap: 10px; opacity: 0; transition: opacity 0.2s;
+}
+.product-card:hover .admin-controls { opacity: 1; }
+body.admin-mode .admin-controls { opacity: 1; }
+.edit-btn, .delete-btn { width: 30px; height: 30px; border-radius: 50%; border: none; color: white; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.edit-btn { background-color: #3182ce; } .delete-btn { background-color: #e53e3e; }
+
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; backdrop-filter: blur(5px); }
+.modal-content { background: white; margin: 15% auto; padding: 25px; border-radius: 24px; width: 90%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: slideInUp 0.3s; }
+@keyframes slideInUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.form-group { margin-bottom: 16px; }
+.form-group input, .form-group select { width: 100%; padding: 14px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 15px; background: #f8fafc; outline: none; }
+button[type="submit"] { width: 100%; padding: 14px; background: var(--primary-color); color: white; border: none; border-radius: 12px; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
+.close-modal-btn { width: 100%; padding: 14px; background: #edf2f7; color: #4a5568; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+/* =========================================
+   6. VIDEO PLAYER & PIP (OPTIMIZED SPEED)
+   ========================================= */
+#playerModal.pip-active {
+    background: transparent !important; 
+    backdrop-filter: none !important;
+    pointer-events: none !important;
+    width: 0 !important; height: 0 !important;
+}
+
+.video-modal-content { 
+    background: black; width: 100%; height: 100%; margin: 0; 
+    display: flex; align-items: center; justify-content: center; 
+    position: relative; overflow: hidden; pointer-events: auto;
+    
+    /* گۆڕانکاری گرنگ: خێرایی کرایە 0.2s */
+    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1); 
+}
+
+/* ئەم کڵاسە زیادکرا بۆ وەستانی جوڵە کاتێک ڕایدەکێشیت */
+.video-modal-content.is-dragging {
+    transition: none !important;
+}
+
+.video-modal-content.pip-mode {
+    position: fixed; bottom: 80px; left: 20px; 
+    width: 280px; height: 160px; 
+    border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    z-index: 9999; border: 2px solid rgba(255,255,255,0.1);
+    pointer-events: auto !important;
+    touch-action: none; cursor: move;
+}
+
+.pip-mode .related-channels-bar, .pip-mode .maximize-btn { display: none !important; }
+.pip-mode .pip-toggle-btn i::before { content: "\f065"; }
+
+video { width: 100%; height: 100%; object-fit: contain; }
+.click-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 201; }
+
+.player-btn {
+    position: absolute; top: 25px; color: white; background: rgba(0, 0, 0, 0.6); 
+    width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+    cursor: pointer; z-index: 220; font-size: 18px; opacity: 0; transition: all 0.2s;
+    border: 2px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); box-shadow: 0 4px 8px rgba(0,0,0,0.4); 
+}
+.player-btn:active { background: var(--accent-color); transform: scale(0.95); }
+.close-video { right: 25px; background: rgba(229, 62, 62, 0.85); }
+.maximize-btn { left: 25px; } .pip-toggle-btn { left: 80px; }
+.video-modal-content.ui-visible .player-btn { opacity: 1; top: 25px; }
+
+.related-channels-bar {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 110px;
+    display: flex; align-items: center; gap: 12px; overflow-x: auto; 
+    padding: 10px 20px 30px 20px; z-index: 210; opacity: 0; transform: translateY(100%); transition: all 0.3s;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+}
+.video-modal-content.ui-visible .related-channels-bar { opacity: 1; transform: translateY(0); }
+.related-card {
+    min-width: 70px; height: 70px; border-radius: 14px; background: rgba(255,255,255,0.1); 
+    border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; 
+    overflow: hidden; padding: 4px;
+}
+.related-card.active { border-color: var(--accent-color); }
+.related-card img { width: 100%; height: 100%; object-fit: contain; }
+
+.add-fab { 
+    position: fixed; bottom: 25px; right: 25px; width: 56px; height: 56px; 
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); 
+    color: white; border-radius: 50%; display: none; align-items: center; justify-content: center; 
+    z-index: 150; font-size: 24px; box-shadow: 0 4px 15px rgba(26, 54, 93, 0.4); transition: transform 0.2s;
+}
